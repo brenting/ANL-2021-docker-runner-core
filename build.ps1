@@ -1,0 +1,1 @@
+docker build --pull --rm -f "build\dockerfile" -t gw-easy:latest "build"

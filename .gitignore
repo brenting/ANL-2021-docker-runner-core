@@ -1,0 +1,10 @@
+.vscode
+.venv
+__pycache__
+
+results/*
+tmp/*
+!DUMMY
+
+settings.json
+results.json
