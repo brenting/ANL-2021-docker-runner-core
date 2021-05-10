@@ -1,7 +1,6 @@
 import json
-from os import utime
-from shutil import move
-from subprocess import call
+import subprocess
+
 from scripts.utility_space import UtilitySpace
 
 
@@ -55,7 +54,10 @@ class Session:
         with open("settings.json", "w") as f:
             f.write(json.dumps(self.settings))
 
-        call(self.exec_command)
+        self.process = subprocess.Popen(
+            self.exec_command, stderr=subprocess.PIPE, universal_newlines=True
+        )
+        _, self.stderr = self.process.communicate()
 
     def post_process(self, id):
         with open("results.json") as f:
@@ -64,24 +66,31 @@ class Session:
         if self.mode == "negotiation":
             self.add_utilities_to_results(results)
 
-        with open(f"results/{id:04d}_{self.mode}.json", "w") as f:
+        with open(f"results/{id+1:04d}_{self.mode}.json", "w") as f:
             f.write(json.dumps(results, indent=2))
 
     def add_utilities_to_results(self, results):
         results = results["SAOPState"]
-        utility_spaces = {
-            k: UtilitySpace(v["profile"]) for k, v in results["partyprofiles"].items()
-        }
 
-        for action in results["actions"]:
-            if "offer" in action:
-                offer = action["offer"]
-            elif "accept" in action:
-                offer = action["accept"]
-            else:
-                continue
-
-            bid = offer["bid"]["issuevalues"]
-            offer["utilities"] = {
-                k: v.get_utility(bid) for k, v in utility_spaces.items()
+        if not results["actions"]:
+            print(
+                f"\nWARNING: Session has failed (error can also be found in result json-file):\n{self.stderr}\n"
+            )
+            results["error"] = self.stderr
+        else:
+            utility_spaces = {
+                k: UtilitySpace(v["profile"])
+                for k, v in results["partyprofiles"].items()
             }
+            for action in results["actions"]:
+                if "offer" in action:
+                    offer = action["offer"]
+                elif "accept" in action:
+                    offer = action["accept"]
+                else:
+                    continue
+
+                bid = offer["bid"]["issuevalues"]
+                offer["utilities"] = {
+                    k: v.get_utility(bid) for k, v in utility_spaces.items()
+                }
