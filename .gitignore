@@ -8,3 +8,5 @@ tmp/*
 
 settings.json
 results.json
+
+push.sh

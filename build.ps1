@@ -1,1 +1,1 @@
-docker build --pull --rm -f "build\dockerfile" -t gw-easy:latest "build"
+docker build --pull --rm -f "dockerfile" -t brenting/anl_2021:1.0.0 "."
