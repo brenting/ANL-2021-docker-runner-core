@@ -67,46 +67,50 @@ def prepare_check_settings(settings, jar_to_classpath):
         return str(uuid4())
 
     file_to_uuid = DefaultDict(str_uuid)
+    track_files = DefaultDict(list)
 
     assert isinstance(settings, list)
-    for session in settings:
+    for idx, session in enumerate(settings):
         assert isinstance(session, dict)
         assert len(session) == 1
-        assert all([key in {"negotiation", "learn"} for key in session.keys()])
+        assert next(iter(session)) in {"negotiation", "learn"}
         session_details = next(iter(session.values()))
         assert isinstance(session_details, dict)
         assert len(session_details) == 2
-        assert all([key in {"deadline", "parties"} for key in session_details.keys()])
+        assert "deadline" in session_details
+        assert "parties" in session_details
         assert session_details["deadline"] > 0
         parties = session_details["parties"]
         assert isinstance(parties, list)
-        if "negotiation" in session.keys():
+        if "negotiation" in session:
             assert len(parties) == 2
         for party in parties:
-            assert 1 < len(party) < 4
-            assert all(
-                [key in {"party", "profile", "parameters"} for key in party.keys()]
-            )
+            assert "party" in party
+            assert all([key in {"party", "profile", "parameters"} for key in party])
             assert party["party"] in jar_to_classpath
-            if "negotiation" in session.keys():
+            party["party"] = jar_to_classpath[party["party"]]
+            party_name = party["party"].split(".")[-1]
+            prms = {}
+            if "negotiation" in session:
                 assert party["profile"] in profiles
                 party["profile"] = f"file:{party['profile']}"
-            elif "learn" in session.keys():
+                prms["persistentstate"] = file_to_uuid[f"{party_name}_state"]
+                negotiationdata_fn = file_to_uuid[f"{party_name}_session_{idx}"]
+                prms["negotiationdata"] = [negotiationdata_fn]
+                track_files[party_name].append(negotiationdata_fn)
+            elif "learn" in session:
                 party["profile"] = "http://prof1"
-            party["party"] = jar_to_classpath[party["party"]]
-            if "parameters" in party.keys():
-                prms = party["parameters"]
-                if "persistentstate" in prms:
-                    assert isinstance(prms["persistentstate"], str)
-                    prms["persistentstate"] = file_to_uuid[prms["persistentstate"]]
-                if "negotiationdata" in prms:
-                    assert isinstance(prms["negotiationdata"], list)
-                    assert all(
-                        [isinstance(entry, str) for entry in prms["negotiationdata"]]
-                    )
-                    prms["negotiationdata"] = [
-                        file_to_uuid[entry] for entry in prms["negotiationdata"]
-                    ]
+                prms["persistentstate"] = file_to_uuid[f"{party_name}_state"]
+                prms["negotiationdata"] = track_files[party_name]
+                track_files[party_name] = []
+
+            if "parameters" in party:
+                prms_yaml = party["parameters"]
+                assert "persistentstate" not in prms_yaml
+                assert "negotiationdata" not in prms_yaml
+                prms.update(prms_yaml)
+
+            party["parameters"] = prms
 
     uuid_to_name = {v: k for k, v in file_to_uuid.items()}
 
