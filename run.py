@@ -9,6 +9,7 @@ from uuid import uuid4
 import yaml
 
 from scripts.session import Session
+from scripts.plot import plot_results
 
 tmp_dir = os.path.join(tempfile.gettempdir(), "geniusweb")
 
@@ -30,6 +31,8 @@ def main():
         session.post_process(id)
 
     rename_tmp_files(uuid_to_name)
+    plot_results()
+
 
 
 def check_agent_jars(agent_jar_files):
