@@ -1,8 +1,10 @@
 import glob
-import os
 import json
+import os
 from collections import defaultdict
+
 import plotly.graph_objects as go
+from tqdm import tqdm
 
 
 def plot_results():
@@ -11,7 +13,7 @@ def plot_results():
         "session,agent A,agent B,profile A,profile B,utility A,utility B,agreement"
     ]
 
-    for result_file in result_files:
+    for result_file in tqdm(result_files, desc="Plotting results"):
         with open(result_file, "r") as f:
             result = json.loads(f.read())["SAOPState"]
 

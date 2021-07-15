@@ -5,5 +5,5 @@ RUN apk add openjdk8-jre
 WORKDIR /app/
 COPY run.py run.py
 ADD scripts scripts
-RUN ["pip3", "install", "pyyaml", "plotly"]
+RUN ["pip3", "install", "pyyaml", "plotly", "tqdm"]
 CMD ["python3", "run.py"]
