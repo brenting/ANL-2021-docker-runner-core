@@ -18,6 +18,11 @@ def main():
     if not os.path.exists(tmp_dir):
         os.makedirs(tmp_dir)
 
+    delete_files = glob.glob("tmp/*") + glob.glob("results/*")
+    for delete_file in delete_files:
+        if not os.path.basename(delete_file) == "DUMMY":
+            os.remove(delete_file)
+
     jar_to_classpath = check_agent_jars(glob.glob("parties/*"))
 
     with open("settings.yaml", "r") as f:
