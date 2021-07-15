@@ -55,10 +55,6 @@ class Session:
             f.write(json.dumps(self.settings))
 
         subprocess.call(self.exec_command)
-        # self.process = subprocess.Popen(
-        #     self.exec_command, stderr=subprocess.PIPE, universal_newlines=True
-        # )
-        # _, self.stderr = self.process.communicate()
 
     def post_process(self, id):
         with open("results.json", "r") as f:
@@ -73,12 +69,7 @@ class Session:
     def add_utilities_to_results(self, results):
         results = results["SAOPState"]
 
-        if not results["actions"]:
-            print(
-                f"\nWARNING: Session has failed (error can also be found in result json-file):\n{self.stderr}\n"
-            )
-            # results["error"] = self.stderr
-        else:
+        if results["actions"]:
             utility_spaces = {
                 k: UtilitySpace(v["profile"])
                 for k, v in results["partyprofiles"].items()
