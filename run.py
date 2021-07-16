@@ -16,12 +16,9 @@ tmp_dir = os.path.join(tempfile.gettempdir(), "geniusweb")
 timestamp = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 
 def main():
-    if not os.path.exists(tmp_dir):
-        os.makedirs(tmp_dir)
-    if not os.path.exists(f"tmp/{timestamp}"):
-        os.makedirs(f"tmp/{timestamp}")
-    if not os.path.exists(f"results/{timestamp}"):
-        os.makedirs(f"results/{timestamp}")
+    create_directory(tmp_dir)
+    create_directory(f"tmp/{timestamp}")
+    create_directory(f"results/{timestamp}")
 
     jar_to_classpath = check_agent_jars(glob.glob("parties/*"))
 
@@ -40,6 +37,11 @@ def main():
     rename_tmp_files(uuid_to_name)
     plot_results(results_path)
 
+
+def create_directory(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+        os.chmod(path, 0o777)
 
 
 def check_agent_jars(agent_jar_files):
