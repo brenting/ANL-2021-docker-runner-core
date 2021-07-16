@@ -1,1 +1,1 @@
-docker build --pull --rm -f "dockerfile" -t brenting/anl_2021:1.1.0 "."
+docker build --pull --rm -f "dockerfile" -t brenting/anl_2021:1.2.0 "."
