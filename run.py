@@ -5,6 +5,7 @@ import zipfile
 from shutil import move
 from typing import DefaultDict
 from uuid import uuid4
+from datetime import datetime
 
 import yaml
 
@@ -12,16 +13,15 @@ from scripts.session import Session
 from scripts.plot import plot_results
 
 tmp_dir = os.path.join(tempfile.gettempdir(), "geniusweb")
-
+timestamp = datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 
 def main():
     if not os.path.exists(tmp_dir):
         os.makedirs(tmp_dir)
-
-    delete_files = glob.glob("tmp/*") + glob.glob("results/*")
-    for delete_file in delete_files:
-        if not os.path.basename(delete_file) == "DUMMY":
-            os.remove(delete_file)
+    if not os.path.exists(f"tmp/{timestamp}"):
+        os.makedirs(f"tmp/{timestamp}")
+    if not os.path.exists(f"results/{timestamp}"):
+        os.makedirs(f"results/{timestamp}")
 
     jar_to_classpath = check_agent_jars(glob.glob("parties/*"))
 
@@ -30,13 +30,15 @@ def main():
 
     uuid_to_name = prepare_check_settings(settings, jar_to_classpath)
 
+    results_path = f"results/{timestamp}"
+
     for id, session_data in enumerate(settings):
         session = Session(session_data)
         session.execute()
-        session.post_process(id)
+        session.post_process(id, results_path)
 
     rename_tmp_files(uuid_to_name)
-    plot_results()
+    plot_results(results_path)
 
 
 
@@ -131,8 +133,8 @@ def rename_tmp_files(uuid_to_name):
     for uuid_file in uuid_files:
         uuid = os.path.basename(uuid_file)
         if uuid in uuid_to_name:
-            move(uuid_file, f"tmp/{uuid_to_name[uuid]}")
-            os.chmod(f"tmp/{uuid_to_name[uuid]}", 0o777)
+            move(uuid_file, f"tmp/{timestamp}/{uuid_to_name[uuid]}")
+            os.chmod(f"tmp/{timestamp}/{uuid_to_name[uuid]}", 0o777)
 
 
 if __name__ == "__main__":

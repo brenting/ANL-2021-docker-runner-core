@@ -57,16 +57,16 @@ class Session:
 
         subprocess.call(self.exec_command)
 
-    def post_process(self, id):
+    def post_process(self, id, results_path):
         with open("results.json", "r") as f:
             results = json.load(f)
 
         if self.mode == "negotiation":
             self.add_utilities_to_results(results)
 
-        with open(f"results/{id+1:04d}_{self.mode}.json", "w") as f:
+        with open(f"{results_path}/{id+1:04d}_{self.mode}.json", "w") as f:
             f.write(json.dumps(results, indent=2))
-        os.chmod(f"results/{id+1:04d}_{self.mode}.json", 0o777)
+        os.chmod(f"{results_path}/{id+1:04d}_{self.mode}.json", 0o777)
 
     def add_utilities_to_results(self, results):
         results = results["SAOPState"]

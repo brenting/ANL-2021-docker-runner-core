@@ -7,8 +7,8 @@ import plotly.graph_objects as go
 from tqdm import tqdm
 
 
-def plot_results():
-    result_files = sorted(glob.glob("results/*negotiation.json"))
+def plot_results(results_path):
+    result_files = sorted(glob.glob(f"{results_path}/*negotiation.json"))
     summary = [
         "session,agent A,agent B,profile A,profile B,utility A,utility B,agreement"
     ]
@@ -106,6 +106,6 @@ def plot_results():
             )
         )
         
-    with open("results/summary.csv", "w") as f:
+    with open(f"{results_path}/summary.csv", "w") as f:
         f.write("\n".join(summary))
-    os.chmod("results/summary.csv", 0o777)
+    os.chmod(f"{results_path}/summary.csv", 0o777)
