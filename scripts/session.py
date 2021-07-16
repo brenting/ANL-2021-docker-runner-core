@@ -1,4 +1,5 @@
 import json
+import os
 import subprocess
 
 from scripts.utility_space import UtilitySpace
@@ -65,6 +66,7 @@ class Session:
 
         with open(f"results/{id+1:04d}_{self.mode}.json", "w") as f:
             f.write(json.dumps(results, indent=2))
+        os.chmod(f"results/{id+1:04d}_{self.mode}.json", 0o777)
 
     def add_utilities_to_results(self, results):
         results = results["SAOPState"]

@@ -89,6 +89,7 @@ def plot_results():
         fig.update_xaxes(title_text="round", range=[0, index + 1], ticks="outside")
         fig.update_yaxes(title_text="utility", range=[0, 1], ticks="outside")
         fig.write_html(f"{os.path.splitext(result_file)[0]}.html")
+        os.chmod(f"{os.path.splitext(result_file)[0]}.html", 0o777)
 
         partyprofiles = result["partyprofiles"]
         agents = [v["party"]["partyref"].split(".")[-1] for v in partyprofiles.values()]
@@ -104,5 +105,7 @@ def plot_results():
                 ]
             )
         )
+        
     with open("results/summary.csv", "w") as f:
         f.write("\n".join(summary))
+    os.chmod("results/summary.csv", 0o777)

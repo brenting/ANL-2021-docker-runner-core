@@ -132,6 +132,7 @@ def rename_tmp_files(uuid_to_name):
         uuid = os.path.basename(uuid_file)
         if uuid in uuid_to_name:
             move(uuid_file, f"tmp/{uuid_to_name[uuid]}")
+            os.chmod(f"tmp/{uuid_to_name[uuid]}", 0o777)
 
 
 if __name__ == "__main__":
