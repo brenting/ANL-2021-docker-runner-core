@@ -50,10 +50,13 @@ def check_agent_jars(agent_jar_files):
 
     for agent_jar_file in agent_jar_files:
         jar = zipfile.ZipFile(agent_jar_file, "r")
-        manifest = jar.read("META-INF/MANIFEST.MF").decode("ascii").split()
-
+        manifest = jar.read("META-INF/MANIFEST.MF").decode("ascii").splitlines()
+        for i, entry in enumerate(manifest):
+            if ":" not in entry:
+                manifest[i-1] += entry[1:]
+                manifest.pop(i)
         main_cls = [
-            manifest[i + 1] for i, x in enumerate(manifest) if x == "Main-Class:"
+            x.split(": ")[1] for x in manifest if x.startswith("Main-Class:")
         ][0]
         agent_pkg = main_cls.rsplit(".", 1)[0]
         agent_pkgs[agent_pkg].append(agent_jar_file)
@@ -61,7 +64,6 @@ def check_agent_jars(agent_jar_files):
         jar_to_classpath[agent_jar_file] = main_cls
 
         jar.close()
-
     for agent_pkg, jar_files in agent_pkgs.items():
         if len(jar_files) > 1:
             files = "\n".join(jar_files)
