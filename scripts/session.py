@@ -9,7 +9,7 @@ class Session:
     exec_command = [
         "java",
         "-cp",
-        "scripts/simplerunner-1.6.0-jar-with-dependencies.jar:parties/*",
+        "scripts/simplerunner-1.6.1-jar-with-dependencies.jar:parties/*",
         "geniusweb.simplerunner.NegoRunner",
         "settings.json",
     ]
